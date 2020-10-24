@@ -1,0 +1,90 @@
+.cajaMenor{
+    width: 60%;
+    height: 100%;
+    background: rgba(241, 243, 102, 1);
+    overflow: auto;
+}
+
+.questionOptionsBox{
+    background: white;
+    width: 90%;
+    margin: auto;
+    margin-top: 35px;
+    padding: 20px;
+}
+
+
+.questionInput{
+    font-family: Montserrat;
+    font-size: 20px;
+    border: none;
+    border-bottom: solid rgba(129, 129, 129, 1) 1px;
+    outline: none;
+    width: 90%;
+    padding: 10px;
+}
+
+.optionContainer{
+    display: flex;
+    align-items: center;
+}
+
+.optionInput{
+    font-size: 15px;
+    font-family: Montserrat;
+    padding: 3px;
+    margin-left: 10px;
+    border: none;
+    border-bottom: solid rgba(129, 129, 129, 1) 1px;
+    outline: none;
+}
+
+.optionsContainer{
+    margin-left: 20px;
+    margin-top: 10px;
+}
+
+.buttonSubmit{
+    border: none;
+    background: rgba(0, 135, 255, 0.7);
+    font-size: 17px;
+    font-family: Montserrat;
+    color: white;
+    padding: 7px;
+    border-radius: 5px;
+    margin-top: 20px;
+    margin-left: 35px;
+}
+
+.buttonSubmit:hover{
+    cursor: pointer;
+}
+
+.optionLetter:hover{
+    cursor: pointer;
+}
+
+.botonBorrar{
+    height: 40px;
+    width: 40px;
+    background: red;
+    color: white;
+    font-family: Montserrat;
+    font-size: 25px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    float: right;
+}
+
+.linkBotonBorrar{
+    text-decoration: none;
+    color: white;
+}
+
+#inputTimePerQuestion{
+    font-size: 18px;
+    margin-top: 20px;
+    margin-left: 36px;
+}

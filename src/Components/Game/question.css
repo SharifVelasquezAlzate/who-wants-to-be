@@ -1,0 +1,118 @@
+#container{
+    overflow: hidden;
+    height: 100%;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#container{
+    background: rgba(7, 55, 104, 1);
+    color: white;
+    font-family: Montserrat;
+}
+
+.box{
+    padding: 20px;
+    border: solid black 5px;
+}
+
+#counter{
+    padding: 10px;
+    width: 50%;
+    color: white;
+    text-align: center;
+    font-weight: bold;
+    font-family: Montserrat;
+    font-size: 20px;
+    margin: auto;
+    margin-bottom: 30px;
+}
+
+.question{
+    margin: auto;
+    border: solid rgba(31, 176, 168, 1) 5px;
+    border-radius: 20px;
+    padding: 30px;
+    text-align: center;
+}
+
+.options{
+    display: grid;
+    grid-template-columns: repeat(2, auto);
+    margin-top: 30px;
+}
+
+.option{
+    width:93%;
+    border: solid rgba(9, 231, 217, 1) 3px;
+    border-radius: 5px;
+    padding: 5px;
+    margin: 5px;
+    transition: background 0.5s;
+}
+
+.option:hover{
+    background: rgba(9, 231, 217, 1);
+    cursor: pointer;
+}
+
+#buttonSubmitAnswer{
+    background: none;
+    border: solid rgba(231, 217, 9) 3px;
+    border-radius: 5px;
+    padding: 8px;
+    color: white;
+    font-family: Montserrat;
+    font-size: 15px;
+    transition: background 0.25s;
+    transition: color 0.25s;
+}
+
+#buttonSubmitAnswer:hover{
+    cursor: pointer;
+    background: rgba(231, 217, 9);
+    color: black;
+}
+
+.telon{
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    z-index: -1;
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mostrarHaciaArriba{
+    animation: mostrarHaciaArriba 1s;
+}
+
+.mostrarHaciaAbajo{
+    animation: mostrarHaciaAbajo 1s;
+}
+
+@keyframes mostrarHaciaArriba{
+    0%{
+        transform: translate(0%, 100%);
+    }
+    100%{
+        transform: translate(0%, 0%);
+    }
+}
+
+@keyframes mostrarHaciaAbajo{
+    0%{
+        transform: translate(0%, 0%);
+        opacity: 1;
+        z-index: 1;
+    }
+    100%{
+        transform: translate(0%, 100%);
+        opacity: 1;
+        z-index: 1;
+    }
+}

@@ -1,0 +1,24 @@
+.createJoinCreateButton{
+  width:100%;
+  font-weight: bold;
+  font-size: 0.9rem;
+}
+
+.createJoinJoinButton{
+  width:49%;
+  font-weight: bold;
+  font-size: 0.9rem;
+}
+
+.createJoinJoinInput{
+  width:49%;
+  font-size: 18px;
+}
+
+.createJoinWrapper{
+    height: 100%;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
