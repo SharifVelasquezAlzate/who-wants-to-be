@@ -5,14 +5,16 @@ import AppContext from '../AppContext';
 
 function Question(props){
     const context = useContext(AppContext);
+    const [x, setX] = useState('sdfsdfsdfsdfsdfsdf, xd');
+    const [unnecessaryDistance, setUnnecessaryDistance] = useState('');
+    const counterHTML = useRef(null);
+    const [optionClicked, setOptionClicked] = useState('');
     const actualQuestion = props.props.actualQuestion;
     const questionCounter = props.props.questionCounter;
     const timePerQuestion = props.props.timePerQuestion;
-    const counterHTML = useRef(null)
-    const [optionClicked, setOptionClicked] = useState('');
     let options = null;
     let element = null;
-    const[x, setX] = useState('');
+    let distance = null;
     let formSubmitted = 0;
 
     //Functions
@@ -24,38 +26,32 @@ function Question(props){
         telon.classList.add('mostrarHaciaArriba');
     }
 
-    const curtainDown = async () => {
-        const telon = document.getElementsByClassName('telon').item(0);
-        telon.style.opacity = 0;
-        telon.style.zIndex = -1;
-        await telon.classList.remove('mostrarHaciaArriba');
-        await telon.classList.add('mostrarHaciaAbajo');
-    }
-
     function startCounter(time){
         document.getElementById('counter').style.color = 'white';
         let countDownDate = new Date();
         countDownDate = new Date(countDownDate.getTime() + time);
         setX(setInterval(function() {
-          var now = new Date().getTime();
-          var distance = countDownDate - now;
-          var seconds = (distance % (1000 * 60)) / 1000;
+            var now = new Date().getTime();
+            distance = countDownDate - now;
+            var seconds = (distance % (1000 * 60)) / 1000;
 
-          document.getElementById("counter").innerHTML = `${seconds.toFixed(2)}`;
-          if(distance < 5000){
-              document.getElementById('counter').style.color = 'red';
-          }
+            try{
+                document.getElementById("counter").innerHTML = `${seconds.toFixed(2)}`;
+                if(distance < 5000){
+                    document.getElementById('counter').style.color = 'red';
+                }
+            } catch {}
 
-          if(distance < 0){
-            clearInterval(x);
-          }
+            if (distance <= 0){
+                setUnnecessaryDistance(distance);
+            }
         }, 100));
     }
 
     //Messages
     useEffect(() => {
+        console.log('Esto se actualiza', x);
         options = document.getElementsByClassName('option');
-        console.log("And these are the options:", options);
         for (var i = 0; i < options.length; i++){
             element = options.item(i);
             element.addEventListener('click', (event) => {
@@ -63,18 +59,21 @@ function Question(props){
                     options.item(i).style.cssText = 'background: rgba(9, 231, 217, 0);';
                 }
                 event.target.style.cssText = 'background: rgba(9, 231, 217, 1);';
-                console.log("El event.target:", event.target)
                 setOptionClicked(event.target);
-                console.log("And you clicked this:", optionClicked);
             });
         }
-        console.log("Y bueno chavales, aqui en el useEffect!", optionClicked);
         startCounter(timePerQuestion*1000);
     }, []);
 
+    useEffect(() => {
+        console.log('ESTO SE ACTUALIZAAAAAAAAAAAAAAAAAAAAAA D:');
+        if (distance <= 0){
+            clearInterval(x);
+        }
+    }, [unnecessaryDistance]);
+
     function submitHandler(event){
         event.preventDefault();
-        console.log('HAS SUBMITTEADO!', formSubmitted, optionClicked.innerText);
         if (formSubmitted < 1){
             clearInterval(x);
             const payLoad = {

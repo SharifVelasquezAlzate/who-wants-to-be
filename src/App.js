@@ -21,6 +21,7 @@ function App() {
     gameId: gameId,
     sock: socket,
     game: null,
+    leaderboard: null,
     setClientId,
     setGameId
   }

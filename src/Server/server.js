@@ -67,8 +67,7 @@ function timeEnded(gameId, actualQuestionCounter){
         console.log('Nuevo contador iniciado');
     }
     
-    
-    setTimeout(startCounterTimeout, 3000);
+    setTimeout(startCounterTimeout, 6000);
 }
 
 io.on('connection', async (sock) => {
@@ -176,7 +175,7 @@ io.on('connection', async (sock) => {
             }
             function startCounterTimeout(){
                 questionCounter = setTimeout(timeEnded, game.timePerQuestion*1000, gameId, result.questionNumber + 1);
-                console.log('Nuevo contador iniciado');
+                console.log('Nuevo contador iniciado 2');
             }
             
         }

@@ -9,7 +9,9 @@ function Game(){
     const context = useContext(AppContext);
     const game = context.game;
     let questionCounter = 0;
+    let nextQuestionCounter = 0;
     let cortinaTiempoSubida = false;
+    const [noNextQuestion, setNoNextQuestion] = useState(false);
     let leaderboard = '';
     const [properties, setProperties] = useState({actualQuestion: game.questions[questionCounter], questionCounter: questionCounter, timePerQuestion: game.timePerQuestion});
     const [temporalLeaderboardProperties, setTemporalLeaderboardProperties] = useState({showTemporalLeaderboard: false, leaderboard: {}});
@@ -45,6 +47,7 @@ function Game(){
 
     async function nextQuestion(){
         setTemporalLeaderboardProperties({showTemporalLeaderboard: false, leaderboard: {}});
+        console.log("So you ordered a next question");
         curtainTimeDown();
         questionCounter++;
         if(game.questions[questionCounter] !== undefined){
@@ -64,7 +67,7 @@ function Game(){
     }
 
     function showTemporalLeaderboard(temporalLeaderboard) {
-        setTimeout(nextQuestion, 1500);
+        nextQuestionCounter = setTimeout(nextQuestion, 3000);
         setTemporalLeaderboardProperties({showTemporalLeaderboard: true, leaderboard: temporalLeaderboard});
     }
 
@@ -73,9 +76,11 @@ function Game(){
         socket.on('message', async message => {
             const response = JSON.parse(message);
             if(response.method === 'submitAnswer'){
-                console.log("ARE YOU SERIOUSLY KIDDING ME!?", response);
                 curtainDown();
                 leaderboard = response.leaderboard;
+                if(context.leaderboard === null){
+                    context.leaderboard = leaderboard;
+                }
                 let options = document.getElementsByClassName('option');
                 if (response.answerWasRight){ //If answer is the right one...
                     for (var i = 0; i < options.length; i++){
@@ -92,17 +97,20 @@ function Game(){
                         }
                     }
                 }
-                setTimeout(showTemporalLeaderboard, 1500, leaderboard);
+                setTimeout(showTemporalLeaderboard, 3000, leaderboard);
             }
 
             if(response.method === "showWinners"){
-                setTemporalLeaderboardProperties({showTemporalLeaderboard: false, leaderboard: leaderboard});
+                setProperties(null);
+                setNoNextQuestion(true);
+                clearTimeout(nextQuestionCounter);
+                setTemporalLeaderboardProperties({showTemporalLeaderboard: false, leaderboard: response.leaderboard});
                 setWinnerProperties({showWinners: true, leaderboard: response.leaderboard});
             }
 
             if(response.method === "timeEnded"){
                 curtainTimeUp();
-                setTimeout(showTemporalLeaderboard, 1500, response.leaderboard);
+                setTimeout(showTemporalLeaderboard, 3000, response.leaderboard);
             }
         });
     }, []);
@@ -116,9 +124,13 @@ function Game(){
             <Leaderboard leaderboard={temporalLeaderboardProperties.leaderboard}/>
         )
     } else {
-        return(
-            <Question props={properties}/>
-        )
+        if(properties !== null){
+            return(
+                <Question props={properties} noMore={noNextQuestion}/>
+            )
+        } else {
+            return(<div></div>);
+        }
     }
 }
 

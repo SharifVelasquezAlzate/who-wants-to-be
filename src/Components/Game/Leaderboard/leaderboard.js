@@ -21,7 +21,6 @@ for(let i = 0; i < columns.length; i++){
     score = horizontalColumn.querySelector('.score').innerText;
     username = horizontalColumn.querySelector('.username').innerText;
     //horizontalColumn.style.width = `${parseInt(score)*10}%`;
-    console.log("AND THIS IS THE WIDTH:", horizontalColumn.style.width);
     leaderboardColumns.push({'username' : username, 'score' : parseInt(score)});
 }
 
