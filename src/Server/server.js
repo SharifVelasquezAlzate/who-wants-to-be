@@ -5,7 +5,6 @@ const path = require('path');
 const morgan = require('morgan');
 const randomColor = require('randomcolor');
 const cors = require('cors');
-const { default: question } = require('../Components/Game/question');
 
 //Intializations
 const app = express();
@@ -49,7 +48,6 @@ function timeEnded(gameId, actualQuestionCounter){
     }
 
     const game = games[gameId];
-    console.log('ENVIAR MENSAJE DE DESTRUCCION!!!!');
     
     game.clients.forEach(client => {
         let encontrado = false;
@@ -224,6 +222,7 @@ io.on('connection', async (sock) => {
     console.log('Someone is connected!');
     sock.on('disconnect', () => {
         console.log("Someone disconnected!");
+        clearTimeout(questionCounter);
         for (var client in clients){
             if (clients[client].connection == sock){
                 let clientIdSearched = client.id;

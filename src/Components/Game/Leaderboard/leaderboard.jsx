@@ -2,7 +2,6 @@ import React, { useEffect } from 'react';
 import { useRef } from 'react';
 import './leaderboard.css';
 
-
 function Leaderboard({leaderboard}) {
     const divScores = useRef(null);
 

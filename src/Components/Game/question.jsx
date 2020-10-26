@@ -1,21 +1,18 @@
-import React, { useContext, useEffect, useRef } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import './question.css';
 import { socket } from '../../socket';
 import AppContext from '../AppContext';
-import GameContext  from '../GameContext';
 
 function Question(props){
     const context = useContext(AppContext);
-    const gameContext = useContext(GameContext);
-    //const [actualQuestion, setActualQuestion] = useState(game.questions[questionCounter]);
     const actualQuestion = props.props.actualQuestion;
     const questionCounter = props.props.questionCounter;
     const timePerQuestion = props.props.timePerQuestion;
     const counterHTML = useRef(null)
-    let optionClicked = '';
+    const [optionClicked, setOptionClicked] = useState('');
     let options = null;
     let element = null;
-    let x = '';
+    const[x, setX] = useState('');
     let formSubmitted = 0;
 
     //Functions
@@ -27,11 +24,19 @@ function Question(props){
         telon.classList.add('mostrarHaciaArriba');
     }
 
+    const curtainDown = async () => {
+        const telon = document.getElementsByClassName('telon').item(0);
+        telon.style.opacity = 0;
+        telon.style.zIndex = -1;
+        await telon.classList.remove('mostrarHaciaArriba');
+        await telon.classList.add('mostrarHaciaAbajo');
+    }
+
     function startCounter(time){
         document.getElementById('counter').style.color = 'white';
         let countDownDate = new Date();
         countDownDate = new Date(countDownDate.getTime() + time);
-        x = setInterval(function() {
+        setX(setInterval(function() {
           var now = new Date().getTime();
           var distance = countDownDate - now;
           var seconds = (distance % (1000 * 60)) / 1000;
@@ -44,32 +49,34 @@ function Question(props){
           if(distance < 0){
             clearInterval(x);
           }
-        }, 100);
+        }, 100));
     }
 
     //Messages
     useEffect(() => {
         options = document.getElementsByClassName('option');
-        for (var i = 0; i <options.length; i++){
+        console.log("And these are the options:", options);
+        for (var i = 0; i < options.length; i++){
             element = options.item(i);
             element.addEventListener('click', (event) => {
-                event.target.style.cssText = 'background: rgba(9, 231, 217, 1);';
-                if (optionClicked !== '' && optionClicked !== event.target){
-                    optionClicked.style.cssText = 'background: rgba(9, 231, 217, 0);';
+                for(let i=0; i < options.length; i++){
+                    options.item(i).style.cssText = 'background: rgba(9, 231, 217, 0);';
                 }
-                optionClicked = event.target;
+                event.target.style.cssText = 'background: rgba(9, 231, 217, 1);';
+                console.log("El event.target:", event.target)
+                setOptionClicked(event.target);
+                console.log("And you clicked this:", optionClicked);
             });
         }
-
+        console.log("Y bueno chavales, aqui en el useEffect!", optionClicked);
         startCounter(timePerQuestion*1000);
-    });
+    }, []);
 
     function submitHandler(event){
         event.preventDefault();
-        console.log('HAS SUBMITTEADO!', formSubmitted);
+        console.log('HAS SUBMITTEADO!', formSubmitted, optionClicked.innerText);
         if (formSubmitted < 1){
             clearInterval(x);
-            console.log('INTERVALO CLINEADO');
             const payLoad = {
                 "method" : "submitAnswer",
                 "clientId" : context.clientId,
@@ -80,7 +87,6 @@ function Question(props){
             socket.emit('message', JSON.stringify(payLoad));
             curtainUp();
             formSubmitted++;
-            gameContext.alreadySubmitted = true;
         }
     }
 

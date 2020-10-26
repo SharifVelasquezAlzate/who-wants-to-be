@@ -1,9 +1,9 @@
 import React, { useContext, useState, useEffect } from 'react';
 import AppContext from '../AppContext';
-import GameContext from '../GameContext';
 import Question from './question.jsx';
 import { socket } from '../../socket';
 import Winners from '../Winners/winners';
+import Leaderboard  from './Leaderboard/leaderboard.jsx';
 
 function Game(){
     const context = useContext(AppContext);
@@ -12,11 +12,8 @@ function Game(){
     let cortinaTiempoSubida = false;
     let leaderboard = '';
     const [properties, setProperties] = useState({actualQuestion: game.questions[questionCounter], questionCounter: questionCounter, timePerQuestion: game.timePerQuestion});
+    const [temporalLeaderboardProperties, setTemporalLeaderboardProperties] = useState({showTemporalLeaderboard: false, leaderboard: {}});
     const [winnerProperties, setWinnerProperties] = useState({showWinners: false, leaderboard: {}});
-
-    const variables = {
-        alreadySubmitted: false
-    }
 
     //FUNCTIONS
     const curtainDown = async () => {
@@ -47,11 +44,11 @@ function Game(){
     }
 
     async function nextQuestion(){
+        setTemporalLeaderboardProperties({showTemporalLeaderboard: false, leaderboard: {}});
         curtainTimeDown();
         questionCounter++;
         if(game.questions[questionCounter] !== undefined){
             setProperties({actualQuestion: game.questions[questionCounter], questionCounter: questionCounter, timePerQuestion: game.timePerQuestion});
-            variables.alreadySubmitted = false;
         } else {
             const payLoad = {
                 "method" : "showWinners",
@@ -66,11 +63,17 @@ function Game(){
         }
     }
 
+    function showTemporalLeaderboard(temporalLeaderboard) {
+        setTimeout(nextQuestion, 1500);
+        setTemporalLeaderboardProperties({showTemporalLeaderboard: true, leaderboard: temporalLeaderboard});
+    }
+
     //Messages
     useEffect(() => {
         socket.on('message', async message => {
             const response = JSON.parse(message);
             if(response.method === 'submitAnswer'){
+                console.log("ARE YOU SERIOUSLY KIDDING ME!?", response);
                 curtainDown();
                 leaderboard = response.leaderboard;
                 let options = document.getElementsByClassName('option');
@@ -89,16 +92,17 @@ function Game(){
                         }
                     }
                 }
-                setTimeout(nextQuestion, 3000);
+                setTimeout(showTemporalLeaderboard, 1500, leaderboard);
             }
 
             if(response.method === "showWinners"){
+                setTemporalLeaderboardProperties({showTemporalLeaderboard: false, leaderboard: leaderboard});
                 setWinnerProperties({showWinners: true, leaderboard: response.leaderboard});
             }
 
             if(response.method === "timeEnded"){
                 curtainTimeUp();
-                setTimeout(nextQuestion, 3000);
+                setTimeout(showTemporalLeaderboard, 1500, response.leaderboard);
             }
         });
     }, []);
@@ -107,11 +111,13 @@ function Game(){
         return(
             <Winners leaderboard={winnerProperties.leaderboard}/>
         )
+    } else if (temporalLeaderboardProperties.showTemporalLeaderboard) {
+        return(
+            <Leaderboard leaderboard={temporalLeaderboardProperties.leaderboard}/>
+        )
     } else {
         return(
-            <GameContext.Provider value={variables}>
-                <Question props={properties}/>
-            </GameContext.Provider>
+            <Question props={properties}/>
         )
     }
 }
