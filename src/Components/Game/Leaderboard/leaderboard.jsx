@@ -56,10 +56,7 @@ function Leaderboard(props) {
                     console.log("And... You are undefined...");
                 }
             }
-            if (canContinue){
-                context.leaderboard = leaderboardColumns;
-                console.log(context.leaderboard);
-            }
+
         })();
         
 

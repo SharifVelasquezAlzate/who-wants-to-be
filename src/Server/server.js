@@ -106,25 +106,36 @@ io.on('connection', async (sock) => {
             const clientId = result.clientId;
             const gameId = result.gameId
             const game = games[gameId];
-            const color = randomColor();
-            game.clients.push({
-                "clientId" : clientId,
-                "color" : color
-            });
-            game.leaderboard.push({
-                "clientId" :  clientId,
-                "score" : 0,
-                "color" : color
-            });
-            const payLoad = {
-                "method" : "join",
-                "game" : game
+            if (!game.started){
+                
+                console.log("CLIENTS:", game.clients);
+                const color = randomColor();
+                game.clients.push({
+                    "clientId" : clientId,
+                    "color" : color
+                });
+                game.leaderboard.push({
+                    "clientId" :  clientId,
+                    "score" : 0,
+                    "color" : color
+                });
+                const payLoad = {
+                    "method" : "join",
+                    "game" : game
+                }
+
+                console.log('Alguien hizo un join y estos son los clientes:', game.clients);
+
+                game.clients.forEach(client => {
+                    clients[client.clientId].connection.emit('message', JSON.stringify(payLoad));
+                });
+            } else {
+                const payLoad = {
+                    "method" : "error",
+                    "message" : "This game already started"
+                }
+                clients[clientId].connection.emit('message', JSON.stringify(payLoad));
             }
-
-            game.clients.forEach(client => {
-                clients[client.clientId].connection.emit('message', JSON.stringify(payLoad));
-            });
-
         }
 
         if (result.method == 'startGame'){
@@ -133,6 +144,7 @@ io.on('connection', async (sock) => {
                 "method" : "startGame",
                 "game" : game
             }
+            games[game.id].started = true;
             game.clients.forEach(client => {
                 clients[client.clientId].connection.emit('message', JSON.stringify(payLoad));
             });
@@ -196,7 +208,8 @@ io.on('connection', async (sock) => {
                 "clients" : [],
                 "admin" : result.admin,
                 "timePerQuestion" : result.timePerQuestion,
-                "leaderboard" : []
+                "leaderboard" : [],
+                "started" : false
             }
 
             const payLoad = {
@@ -224,10 +237,28 @@ io.on('connection', async (sock) => {
         clearTimeout(questionCounter);
         for (var client in clients){
             if (clients[client].connection == sock){
-                let clientIdSearched = client.id;
+                let clientIdSearched = clients[client].id;
                 for (var game in games){
-                    if (games[game].clients.includes(clientIdSearched)){
-                        delete games[game].clients[clientIdSearched];
+                    for (let i=0; i < games[game].clients.length; i++){
+                        if(games[game].leaderboard[i].clientId === clientIdSearched){
+                            games[game].leaderboard.splice(i, 1);
+                        }
+                        if(games[game].clients[i].clientId === clientIdSearched){
+                            games[game].clients.splice(i, 1);
+                            if(!games[game].started){
+                                const payLoad = {
+                                    "method" : "join",
+                                    "game" : games[game]
+                                }
+                                games[game].clients.forEach(client => {
+                                    clients[client.clientId].connection.emit('message', JSON.stringify(payLoad));
+                                });
+                            } else {
+                                if (!(Array.isArray(games[game].clients) && games[game].clients.length)){
+                                    games[game].started = false;
+                                }
+                            }
+                        }
                     }
                 }
                 delete clients[client];
