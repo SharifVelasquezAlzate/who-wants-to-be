@@ -5,7 +5,7 @@ import AppContext from '../AppContext';
 
 function Question(props){
     const context = useContext(AppContext);
-    const [x, setX] = useState('sdfsdfsdfsdfsdfsdf, xd');
+    const [x, setX] = useState('');
     const [unnecessaryDistance, setUnnecessaryDistance] = useState('');
     const counterHTML = useRef(null);
     const [optionClicked, setOptionClicked] = useState('');
@@ -16,6 +16,7 @@ function Question(props){
     let element = null;
     let distance = null;
     let formSubmitted = 0;
+    const [audio, setAudio] = useState(new Audio('http://localhost:3000/resources/tic-tac-clock-sound-fx.mp3'));
 
     //Functions
     const curtainUp = async () => {
@@ -38,6 +39,7 @@ function Question(props){
             try{
                 document.getElementById("counter").innerHTML = `${seconds.toFixed(2)}`;
                 if(distance < 5000){
+                    audio.play();
                     document.getElementById('counter').style.color = 'red';
                 }
             } catch {}
@@ -50,7 +52,6 @@ function Question(props){
 
     //Messages
     useEffect(() => {
-        console.log('Esto se actualiza', x);
         options = document.getElementsByClassName('option');
         for (var i = 0; i < options.length; i++){
             element = options.item(i);
@@ -66,9 +67,10 @@ function Question(props){
     }, []);
 
     useEffect(() => {
-        console.log('ESTO SE ACTUALIZAAAAAAAAAAAAAAAAAAAAAA D:');
         if (distance <= 0){
-            clearInterval(x);
+            (async function(){await clearInterval(x);})();
+            audio.pause();
+            audio.currentTime = 0;
         }
     }, [unnecessaryDistance]);
 
@@ -76,6 +78,8 @@ function Question(props){
         event.preventDefault();
         if (formSubmitted < 1){
             clearInterval(x);
+            audio.pause();
+            audio.currentTime = 0;
             const payLoad = {
                 "method" : "submitAnswer",
                 "clientId" : context.clientId,

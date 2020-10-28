@@ -5,6 +5,7 @@ import Home from './Components/Home/home';
 import CreateGame from './Components/Create/create.jsx';
 import JoinGame from './Components/Join/join.jsx';
 import Game from './Components/Game/game';
+import Control from './Components/Control/control'
 import { socket } from './socket';
 import {
   BrowserRouter as Router,
@@ -41,6 +42,9 @@ function App() {
           </Route>
           <Route path='/wait'>
             <JoinGame/>
+          </Route>
+          <Route path='/control'>
+            <Control/>
           </Route>
           <Route path="/">
             <Login/>

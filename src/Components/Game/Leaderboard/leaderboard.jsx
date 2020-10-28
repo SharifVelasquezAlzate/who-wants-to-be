@@ -8,13 +8,16 @@ function Leaderboard(props) {
     const divScores = useRef(null);
     const context = useContext(AppContext);
     let leaderboard = context.leaderboard;
-
     useEffect(() => {
+        let maxScore = 0;
         leaderboard.forEach(element => {
             let divi = document.createElement('div');
             divi.style.background = element.color;
             divi.className = 'horizontalColumn';
             divi.innerHTML += `<div class="username">${element.clientId}</div><div class="score">${element.score}</div>`;
+            if(parseInt(`${element.score}`) > maxScore){
+                maxScore = parseInt(`${element.score}`);
+            }
             divScores.current.appendChild(divi);
         });
         
@@ -41,22 +44,21 @@ function Leaderboard(props) {
             horizontalColumn = columns.item(i);
             score = horizontalColumn.querySelector('.score').innerText;
             username = horizontalColumn.querySelector('.username').innerText;
-            //horizontalColumn.style.width = `${parseInt(score)*10}%`;
+            horizontalColumn.style.width = `${(100/maxScore)*parseInt(score)}%`;
             leaderboardColumns.push({'username' : username, 'score' : parseInt(score)});
         }
 
         (async function (){
             await sortByKey(leaderboardColumns, 'score');
-            console.log("And these are the two I need...", leaderboardColumns);
             let canContinue = true;
             for(let i = 0; i < Object.keys(leaderboardColumns).length; i++){
-                console.log("Y el username:", leaderboardColumns.username)
                 if (leaderboardColumns.username == undefined){
                     canContinue = false;
-                    console.log("And... You are undefined...");
                 }
             }
-
+            if (canContinue){
+                context.leaderboard = leaderboardColumns;
+            }
         })();
         
 

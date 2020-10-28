@@ -47,7 +47,6 @@ function Game(){
 
     async function nextQuestion(){
         setTemporalLeaderboardProperties({showTemporalLeaderboard: false, leaderboard: {}});
-        console.log("So you ordered a next question");
         curtainTimeDown();
         questionCounter++;
         if(game.questions[questionCounter] !== undefined){
@@ -78,9 +77,7 @@ function Game(){
             if(response.method === 'submitAnswer'){
                 curtainDown();
                 leaderboard = response.leaderboard;
-                if(context.leaderboard === null){
-                    context.leaderboard = leaderboard;
-                }
+                context.leaderboard = leaderboard;
                 let options = document.getElementsByClassName('option');
                 if (response.answerWasRight){ //If answer is the right one...
                     for (var i = 0; i < options.length; i++){
@@ -110,6 +107,7 @@ function Game(){
 
             if(response.method === "timeEnded"){
                 curtainTimeUp();
+                context.leaderboard = response.leaderboard
                 setTimeout(showTemporalLeaderboard, 3000, response.leaderboard);
             }
         });

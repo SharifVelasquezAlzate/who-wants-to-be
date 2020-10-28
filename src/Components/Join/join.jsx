@@ -22,7 +22,12 @@ function JoinGame(){
                 paintParticipants(context.game);
             }
             if(response.method === 'startGame'){
-                history.push('/game');
+                console.log(response, context.clientId);
+                if (response.game.admin === context.clientId){
+                    history.push('/control');
+                } else {
+                    history.push('/game');
+                }
             }
         });
     })
