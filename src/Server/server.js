@@ -123,11 +123,14 @@ io.on('connection', async (sock) => {
                     "clientId" : clientId,
                     "color" : color
                 });
-                game.leaderboard.push({
-                    "clientId" :  clientId,
-                    "score" : 0,
-                    "color" : color
-                });
+                if (game.admin !== clientId){
+                    game.leaderboard.push({
+                        "clientId" :  clientId,
+                        "score" : 0,
+                        "color" : color
+                    });
+                }
+
                 const payLoad = {
                     "method" : "join",
                     "game" : game

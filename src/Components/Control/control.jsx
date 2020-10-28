@@ -1,12 +1,14 @@
 import React, { useState, useContext, useRef, useEffect } from 'react';
 import { socket } from '../../socket';
 import AppContext from '../AppContext';
+import Winners from '../Winners/winners.jsx';
 
 function Control(){
     const context = useContext(AppContext);
     const game = context.game;
     let questionCounter = 0;
     const [actualQuestion, setActualQuestion] = useState(game.questions[questionCounter]);
+    const [properties, setProperties] = useState({showWinners: false, leaderboard: {}});
     const divParticipants = useRef(null);
 
     let participants = game.clients;
@@ -14,7 +16,6 @@ function Control(){
     //Functions
     function nextQuestion() {
         questionCounter++;
-        console.log("The question counter:", questionCounter);
         setActualQuestion(game.questions[questionCounter]);
         divParticipants.current.innerHTML = '';
         participants.forEach(participant => {
@@ -40,18 +41,31 @@ function Control(){
 
         socket.on('control', message => {
             const response = JSON.parse(message);
-            console.log('Un response:', response);
             if(response.method === "submitAnswerControl"){
                 let searchedClient = document.getElementById(response.clientId);
                 searchedClient.style.background = `${searchedClient.style.background.substring(0, searchedClient.style.background.length - 6)}, 1)`;
-                console.log('El background de ahora:', searchedClient.style.background, searchedClient.style.background.substring(0, searchedClient.style.background.length - 6));
             } 
             if (response.method === "submitAnswer"){
-                console.log('And.. IIt is this:', response);
-                nextQuestion();
+                function unnecessaryFunction(){
+                    console.log("LAS QUESTIONS:", game.questions, game.questions.length);
+                    if (!(questionCounter + 1 >= game.questions.length)){
+                        nextQuestion();
+                    } else {
+                        context.leaderboard = response.leaderboard;
+                        setProperties({showWinners: true, leaderboard: response.leaderboard});
+                    }
+                } setTimeout(unnecessaryFunction, 6000);
             }
             if (response.method === "timeEnded"){
-                nextQuestion();
+                function unnecessaryFunction(){
+                    console.log("LAS QUESTIONS:", game.questions, game.questions.length);
+                    if (!(questionCounter + 1 >= game.questions.length)){
+                        nextQuestion();
+                    } else {
+                        context.leaderboard = response.leaderboard;
+                        setProperties({showWinners: true, leaderboard: response.leaderboard});
+                    }
+                } setTimeout(unnecessaryFunction, 6000);
             }
         });
 
@@ -65,14 +79,19 @@ function Control(){
         });
     }, []);
 
-    return(
-        <div>
-            <h1>{actualQuestion.question}</h1>
-            <div id="DivParticipants"  ref={divParticipants}>
-
+    if (!properties.showWinners){
+        return(
+            <div>
+                <h1>{actualQuestion.question}</h1>
+                <div id="DivParticipants"  ref={divParticipants}></div>
             </div>
-        </div>
-    );
+        );
+    } else {
+        return(
+            <Winners leaderboard={properties.leaderboard}/>
+        )
+    }
+    
 }
 
 export default Control;

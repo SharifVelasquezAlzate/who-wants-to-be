@@ -1,8 +1,9 @@
-import React, {  useContext, useRef, useEffect } from 'react';
+import React, {  useContext, useRef, useEffect, Fragment } from 'react';
 import { useHistory } from 'react-router-dom';
 import AppContext from '../AppContext';
 import { paintParticipants } from './join.js';
 import { socket } from '../../socket';
+import './join.css';
 
 function JoinGame(){
     const context = useContext(AppContext);
@@ -36,12 +37,10 @@ function JoinGame(){
     useEffect(() => {
         paintParticipants(context.game);
         if (game.admin === context.clientId){
-            let divQuestion = document.getElementById('divQuestion');
+            let upContainer = document.getElementById('upContainer');
             buttonAdmin = document.createElement('button');
-            buttonAdmin.className = "standard-button";
-            buttonAdmin.id = "buttonAdmin";
-            buttonAdmin.textContent = 'You are the admin!'
-            buttonAdmin.style.cssText = 'margin-top: 10px;';
+            buttonAdmin.id = "buttonStartGame";
+            buttonAdmin.textContent = 'Start the game'
             buttonAdmin.addEventListener('click', () => {
                 const payLoad = {
                     "method" : "startGame",
@@ -50,11 +49,16 @@ function JoinGame(){
                 }
                 socket.emit('message', JSON.stringify(payLoad));
             });
-            divQuestion.appendChild(buttonAdmin);
+            upContainer.appendChild(buttonAdmin);
         }
     });
     return(
-        <div id="divQuestion" ref={divQuestion}><div id="divParticipants" ref={divParticipants}></div></div>
+        <div id="cajaMenor">
+            <div id="upContainer"><div id="gameCodeContainer">{game.id}</div></div>
+            <div id="divQuestion" ref={divQuestion}>
+                <div id="divParticipants" ref={divParticipants}></div>
+            </div>
+        </div>
     );
 }
 

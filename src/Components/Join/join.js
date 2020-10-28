@@ -31,7 +31,8 @@ function paintParticipants(game){
     divParticipants.innerHTML = '';
     for(let i = 0; i < game.clients.length; i++){
         let divParticipant = document.createElement('div');
-        divParticipant.style.cssText = `width: 200px; padding: 10px; background:${game.clients[i].color}`;
+        divParticipant.className = 'divParticipant';
+        divParticipant.style.background = `${game.clients[i].color}`;
         if (lightOrDark(game.clients[i].color) === 'dark'){
             divParticipant.style.color = 'white';
         }
