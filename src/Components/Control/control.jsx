@@ -47,7 +47,6 @@ function Control(){
             } 
             if (response.method === "submitAnswer"){
                 function unnecessaryFunction(){
-                    console.log("LAS QUESTIONS:", game.questions, game.questions.length);
                     if (!(questionCounter + 1 >= game.questions.length)){
                         nextQuestion();
                     } else {

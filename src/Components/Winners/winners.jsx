@@ -21,6 +21,7 @@ function Winners(props){
             let player = leaderboard[i];
             let div = document.createElement('div');
             div.className = 'participantBox';
+            div.style.background = player.color;
             winnersLeaderboard.current.appendChild(div);
 
             let playerBox = document.createElement('div');

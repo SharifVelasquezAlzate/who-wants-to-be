@@ -53,10 +53,12 @@ function JoinGame(){
         }
     });
     return(
-        <div id="cajaMenor">
-            <div id="upContainer"><div id="gameCodeContainer">{game.id}</div></div>
-            <div id="divQuestion" ref={divQuestion}>
-                <div id="divParticipants" ref={divParticipants}></div>
+        <div className="cajaCentrar">
+            <div id="cajaMenor">
+                <div id="upContainer"><div id="gameCodeContainer">{game.id}</div></div>
+                <div id="divQuestion" ref={divQuestion}>
+                    <div id="divParticipants" ref={divParticipants}></div>
+                </div>
             </div>
         </div>
     );

@@ -5,12 +5,16 @@ const path = require('path');
 const morgan = require('morgan');
 const randomColor = require('randomcolor');
 const cors = require('cors');
+const fetch = require('node-fetch');
 
 //Intializations
 const app = express();
 const server = http.createServer(app);
 const io = socketio(server);
-const games = {};
+let gamesFetch = '';
+let games = {};
+
+fetchGames();
 const clients = {};
 let clientId = '';
 let questionCounter = '';
@@ -24,6 +28,12 @@ app.use(cors());
 app.use(morgan('dev'));
 app.use(express.urlencoded({extended: false}));
 app.use(express.json());
+
+//Routes
+require('./db');
+app.use('/api/games', require('./Routes/routes'));
+
+//Static Files
 app.use(express.static(__dirname + '/publicServer'));
 
 //Start server
@@ -36,6 +46,34 @@ server.on('error', err => {
 });
 
 //Functions
+async function fetchGames(){
+    const res = await fetch('http://localhost:8000/api/games/all');
+    gamesFetch = await res.json();
+    gamesFetch.forEach(element => {
+        games[element.id] = {
+            "id" : element.id,
+            "questions" : element.questions,//{"a" : {question: "¿Cual es mi nombre?", options: ["Samuel", "Sharif", "Anstasio", "Perruni"], answer: "Sharif", answersSubmitted: 0, answers: []}, "b" : {question: "¿Cual es la tecnologia usada para correr javascript en el servidor?", options: ["Node.js", "Angular.js", "React.js", "Vue.js"], answer: "Node.js", answersSubmitted: 0, answers: []}, "c" : {question: "¿Como se llama Jonas?", options: ["Juanito", "Maria", "Tomas", "Jonas"], answer: "Jonas", answersSubmitted: 0, answers: []}},
+            "clients" : [],
+            "admin" : element.admin,
+            "timePerQuestion" : parseInt(element.timePerQuestion),
+            "leaderboard" : [],
+            "started" : false
+        }
+    });
+}
+
+async function postGame(gameObject){
+    const res = await fetch('http://localhost:8000/api/games', {
+        method: 'POST',
+        body: JSON.stringify(gameObject),
+        headers: {
+            'Content-Type' : 'application/json'
+        }
+    });
+    const response = await res.json();
+    return response;
+}
+
 const guid=()=> {
     /*
     const s4=()=> Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);     
@@ -72,7 +110,6 @@ function timeEnded(gameId, actualQuestionCounter){
 
     function startCounterTimeout(){
         questionCounter = setTimeout(timeEnded, game.timePerQuestion*1000, gameId, actualQuestionCounter + 1);
-        console.log('Nuevo contador iniciado');
     }
     
     setTimeout(startCounterTimeout, 6000);
@@ -82,7 +119,6 @@ io.on('connection', async (sock) => {
     //I have received a message from the client
     sock.on('message', async message => {
         const result = JSON.parse(message);
-        console.log('This arrived:', result);
         if(result.method == 'setClientId'){
             clientId = result.clientId;
             if (!clients.hasOwnProperty(clientId)){
@@ -116,8 +152,6 @@ io.on('connection', async (sock) => {
             const gameId = result.gameId
             const game = games[gameId];
             if (!game.started){
-                
-                console.log("CLIENTS:", game.clients);
                 const color = randomColor();
                 game.clients.push({
                     "clientId" : clientId,
@@ -135,8 +169,6 @@ io.on('connection', async (sock) => {
                     "method" : "join",
                     "game" : game
                 }
-
-                console.log('Alguien hizo un join y estos son los clientes:', game.clients);
 
                 game.clients.forEach(client => {
                     clients[client.clientId].connection.emit('message', JSON.stringify(payLoad));
@@ -208,19 +240,16 @@ io.on('connection', async (sock) => {
                 clearTimeout(questionCounter);
                 setTimeout(startCounterTimeout, 6000); //Iniciar contador para la proxima pregunta
                 game.questions[result.questionNumber].answers.forEach(element => {
-                    console.log('El analizado:', element.clientId, "|", game.admin);
                     if (element.clientId !== game.admin){
                         clients[element.clientId].connection.emit('message', JSON.stringify(element));
                     } else {
                         clients[element.clientId].connection.emit('control', JSON.stringify(element));
-                        console.log('Miren, este tipo es diferente de todos los demas', element.clientId);
                     }
                 });
                 game.questions[result.questionNumber].answers = []; 
             }
             function startCounterTimeout(){
                 questionCounter = setTimeout(timeEnded, game.timePerQuestion*1000, gameId, result.questionNumber + 1);
-                console.log('Nuevo contador iniciado 2');
             }
             
         }
@@ -235,15 +264,15 @@ io.on('connection', async (sock) => {
                 jsonQuestions.questions.push(element);
             }
 
-            games[createdGameCode] = {
+            const gameToPost = {
                 "id" : createdGameCode,
                 "questions" : jsonQuestions.questions,//{"a" : {question: "¿Cual es mi nombre?", options: ["Samuel", "Sharif", "Anstasio", "Perruni"], answer: "Sharif", answersSubmitted: 0, answers: []}, "b" : {question: "¿Cual es la tecnologia usada para correr javascript en el servidor?", options: ["Node.js", "Angular.js", "React.js", "Vue.js"], answer: "Node.js", answersSubmitted: 0, answers: []}, "c" : {question: "¿Como se llama Jonas?", options: ["Juanito", "Maria", "Tomas", "Jonas"], answer: "Jonas", answersSubmitted: 0, answers: []}},
-                "clients" : [],
                 "admin" : result.admin,
-                "timePerQuestion" : result.timePerQuestion,
-                "leaderboard" : [],
-                "started" : false
+                "timePerQuestion" : result.timePerQuestion.toString(),
             }
+
+            await postGame(gameToPost);
+            await fetchGames();
 
             const payLoad = {
                 method: "postQuestion",
@@ -268,34 +297,36 @@ io.on('connection', async (sock) => {
     sock.on('disconnect', () => {
         console.log("Someone disconnected!");
         clearTimeout(questionCounter);
-        for (var client in clients){
-            if (clients[client].connection == sock){
-                let clientIdSearched = clients[client].id;
-                for (var game in games){
-                    for (let i=0; i < games[game].clients.length; i++){
-                        if(games[game].leaderboard[i].clientId === clientIdSearched){
-                            games[game].leaderboard.splice(i, 1);
-                        }
-                        if(games[game].clients[i].clientId === clientIdSearched){
-                            games[game].clients.splice(i, 1);
-                            if(!games[game].started){
-                                const payLoad = {
-                                    "method" : "join",
-                                    "game" : games[game]
-                                }
-                                games[game].clients.forEach(client => {
-                                    clients[client.clientId].connection.emit('message', JSON.stringify(payLoad));
-                                });
-                            } else {
-                                if (!(Array.isArray(games[game].clients) && games[game].clients.length)){
-                                    games[game].started = false;
+        try{
+            for (var client in clients){
+                if (clients[client].connection == sock){
+                    let clientIdSearched = clients[client].id;
+                    for (var game in games){
+                        for (let i=0; i < games[game].clients.length; i++){
+                            if(games[game].leaderboard[i].clientId === clientIdSearched){
+                                games[game].leaderboard.splice(i, 1);
+                            }
+                            if(games[game].clients[i].clientId === clientIdSearched){
+                                games[game].clients.splice(i, 1);
+                                if(!games[game].started){
+                                    const payLoad = {
+                                        "method" : "join",
+                                        "game" : games[game]
+                                    }
+                                    games[game].clients.forEach(client => {
+                                        clients[client.clientId].connection.emit('message', JSON.stringify(payLoad));
+                                    });
+                                } else {
+                                    if (!(Array.isArray(games[game].clients) && games[game].clients.length)){
+                                        games[game].started = false;
+                                    }
                                 }
                             }
                         }
                     }
+                    delete clients[client];
                 }
-                delete clients[client];
             }
-        }
+        } catch {}
     });
 });
