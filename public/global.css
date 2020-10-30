@@ -48,7 +48,8 @@ button.turn:hover {
   padding: 5px;
   margin: 10px 10px 0px 0px;
   position: absolute;
-  left: 96%;
+  left: calc(100% - 50px);
+  background: white;
 }
 
 #containerButtonStopAudio:hover{

@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const express = require('express');
 const http = require('http');
 const socketio = require('socket.io');
@@ -22,7 +24,7 @@ let questionCounter = '';
 var clientIdSetted = false;
 
 //Configurations
-app.set('port', 8000);
+app.set('port', process.env.PORT || 8000);
 
 //MiddleWares
 app.use(cors());
@@ -95,7 +97,7 @@ function timeEnded(gameId, actualQuestionCounter){
     
     game.clients.forEach(client => {
         let encontrado = false;
-        if (client.clientId == game.admin){
+        if (client.clientId === game.admin){
             clients[client.clientId].connection.emit('control', JSON.stringify(payLoad));
         }
         game.questions[actualQuestionCounter].answers.forEach(element => {
@@ -107,9 +109,13 @@ function timeEnded(gameId, actualQuestionCounter){
             }
         })
         if(!encontrado){
-            try{
                 clients[client.clientId].connection.emit('message', JSON.stringify(payLoad));
-            } catch {}
+                console.log("THE GAME:", game);
+                for (let i=0; i < game.leaderboard.length; i++){
+                    if(game.leaderboard[i].clientId === client.clientId){
+                        game.leaderboard[i].time += parseFloat(game.timePerQuestion);
+                    }
+                }
         }
     });
 
@@ -152,10 +158,11 @@ io.on('connection', async (sock) => {
             }
             sock.send(JSON.stringify(payLoad))
         }
-        if (result.method == "join"){
+        if (result.method === "join"){
             const clientId = result.clientId;
             const gameId = result.gameId
             const game = games[gameId];
+            console.log(result);
             if (!game.started){
                 const color = randomColor();
                 game.clients.push({

@@ -10,6 +10,7 @@ function Control(){
     const [actualQuestion, setActualQuestion] = useState(game.questions[questionCounter]);
     const [properties, setProperties] = useState({showWinners: false, leaderboard: {}});
     const divParticipants = useRef(null);
+    const divQuestion = useRef(null);
 
     let participants = game.clients;
 
@@ -77,20 +78,24 @@ function Control(){
         });
 
         participants.forEach(participant => {
-            let divi = document.createElement('div');
-            divi.style.width = '200px';
-            divi.style.background = `${participant.color}33`;
-            divi.textContent = participant.clientId;
-            divi.id = participant.clientId;
-            divParticipants.current.appendChild(divi);
+            let divParticipant = document.createElement('div');
+            divParticipant.className = 'divParticipant';
+            divParticipant.style.background = `${participant.color}33`;
+            divParticipant.textContent = participant.clientId;
+            divParticipant.id = participant.clientId;
+            divParticipants.current.appendChild(divParticipant);
         });
     }, []);
 
     if (!properties.showWinners){
         return(
-            <div>
-                <h1>{actualQuestion.question}</h1>
-                <div id="DivParticipants"  ref={divParticipants}></div>
+            <div className="cajaCentrar">
+                <div id="cajaMenor">
+                    <div id="upContainer"><div id="gameCodeContainer">{game.id}</div><div>Game status</div></div>
+                    <div id="divQuestion" ref={divQuestion}>
+                        <div id="divParticipants" ref={divParticipants}></div>
+                    </div>
+                </div>
             </div>
         );
     } else {
