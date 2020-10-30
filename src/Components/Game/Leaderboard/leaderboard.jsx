@@ -33,10 +33,15 @@ function Leaderboard(props) {
         const leaderboardColumns = [];
 
         //Functions
-        function sortByKey(array, key){
-            return array.sort(function(a, b){
-                var x = a[key]; var y = b[key];
-                return ((x > y) ? -1 : ((x < y) ? 1 : 0));
+        function sortByKey(array, key, key2){
+            return [].slice.call(array).sort(function(a, b){
+                if (a[key]===b[key]){
+                    return (b[key2]-a[key2]); //a-b = lower --- b-a = higher
+                 } else if(a[key]>b[key]){
+                    return 1;
+                 } else if(a[key]<b[key]){
+                    return -1;
+                 }
             });
         }
 
@@ -49,7 +54,7 @@ function Leaderboard(props) {
         }
 
         (async function (){
-            await sortByKey(leaderboardColumns, 'score');
+            await sortByKey(leaderboardColumns, 'score', 'time');
             let canContinue = true;
             for(let i = 0; i < Object.keys(leaderboardColumns).length; i++){
                 if (leaderboardColumns.username == undefined){

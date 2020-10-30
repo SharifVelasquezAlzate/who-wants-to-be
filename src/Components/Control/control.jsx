@@ -17,6 +17,14 @@ function Control(){
     function nextQuestion() {
         questionCounter++;
         setActualQuestion(game.questions[questionCounter]);
+        const payLoad = {
+            "method" : "submitAnswer",
+            "clientId" : context.clientId,
+            "gameId" : context.gameId,
+            "questionNumber" : questionCounter,
+            "answer" : ''
+        }
+        socket.emit('message', JSON.stringify(payLoad));
         divParticipants.current.innerHTML = '';
         participants.forEach(participant => {
             let divi = document.createElement('div');

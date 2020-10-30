@@ -5,12 +5,17 @@ import './winners.css';
 function Winners(props){
     const winnersLeaderboard = useRef(null);
     useEffect(() => {
-        const leaderboard = sortByKey(props.leaderboard, 'score').reverse();
+        const leaderboard = sortByKey(props.leaderboard, 'score', 'time').reverse();
         //Functions
-        function sortByKey(array, key){
+        function sortByKey(array, key, key2){
             return [].slice.call(array).sort(function(a, b){
-                var x = a[key]; var y = b[key];
-                return ((x < y) ? -1 : ((x > y) ? 1 : 0));
+                if (a[key]===b[key]){
+                    return (b[key2]-a[key2]); //a-b = lower --- b-a = higher
+                 } else if(a[key]>b[key]){
+                    return 1;
+                 } else if(a[key]<b[key]){
+                    return -1;
+                 }
             });
         }
 
@@ -30,7 +35,7 @@ function Winners(props){
             div.appendChild(playerBox);
 
             let scoreBox = document.createElement('div');
-            scoreBox.textContent = `${player.score}`;
+            scoreBox.textContent = `${player.score} (${player.time.toFixed(2)}s)`;
             scoreBox.className = 'scoreBox';
             div.appendChild(scoreBox);
         }

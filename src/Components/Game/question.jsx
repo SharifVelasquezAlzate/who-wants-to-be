@@ -16,6 +16,7 @@ function Question(props){
     let element = null;
     let distance = null;
     let formSubmitted = 0;
+    let seconds = 0;
     const [audio, setAudio] = useState(new Audio('http://localhost:3000/resources/tic-tac-clock-sound-fx.mp3'));
 
     //Functions
@@ -34,7 +35,7 @@ function Question(props){
         setX(setInterval(function() {
             var now = new Date().getTime();
             distance = countDownDate - now;
-            var seconds = (distance % (1000 * 60)) / 1000;
+            seconds = (distance % (1000 * 60)) / 1000;
 
             try{
                 document.getElementById("counter").innerHTML = `${seconds.toFixed(2)}`;
@@ -68,7 +69,7 @@ function Question(props){
 
     useEffect(() => {
         if (distance <= 0){
-            (async function(){await clearInterval(x);})();
+            clearInterval(x);
             audio.pause();
             audio.currentTime = 0;
         }
@@ -77,6 +78,8 @@ function Question(props){
     function submitHandler(event){
         event.preventDefault();
         if (formSubmitted < 1){
+            let time = parseFloat(context.game.timePerQuestion) - parseFloat(document.getElementById('counter').textContent);
+            console.log('time is this one because is time:', time);
             clearInterval(x);
             audio.pause();
             audio.currentTime = 0;
@@ -85,7 +88,8 @@ function Question(props){
                 "clientId" : context.clientId,
                 "gameId" : context.gameId,
                 "questionNumber" : questionCounter,
-                "answer" : optionClicked.innerText
+                "answer" : optionClicked.innerText,
+                "time" : time
             }
             socket.emit('message', JSON.stringify(payLoad));
             curtainUp();

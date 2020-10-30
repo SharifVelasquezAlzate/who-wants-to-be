@@ -6,6 +6,7 @@ const morgan = require('morgan');
 const randomColor = require('randomcolor');
 const cors = require('cors');
 const fetch = require('node-fetch');
+const { response } = require('express');
 
 //Intializations
 const app = express();
@@ -99,12 +100,16 @@ function timeEnded(gameId, actualQuestionCounter){
         }
         game.questions[actualQuestionCounter].answers.forEach(element => {
             if(element.clientId === client.clientId){
-                clients[element.clientId].connection.emit('message', JSON.stringify(element));
+                try{
+                    clients[element.clientId].connection.emit('message', JSON.stringify(element));
+                } catch {}
                 encontrado = true;
             }
         })
         if(!encontrado){
-            clients[client.clientId].connection.emit('message', JSON.stringify(payLoad));
+            try{
+                clients[client.clientId].connection.emit('message', JSON.stringify(payLoad));
+            } catch {}
         }
     });
 
@@ -161,6 +166,7 @@ io.on('connection', async (sock) => {
                     game.leaderboard.push({
                         "clientId" :  clientId,
                         "score" : 0,
+                        "time" : 0,
                         "color" : color
                     });
                 }
@@ -200,6 +206,7 @@ io.on('connection', async (sock) => {
         }
 
         if (result.method == "submitAnswer"){
+            console.log('HELLOOOOO:', result);
             const gameId = result.gameId;
             const game = games[gameId];
             game.questions[result.questionNumber].answersSubmitted++;
@@ -213,6 +220,7 @@ io.on('connection', async (sock) => {
                     if (answerWasRight){
                         game.leaderboard[temporalCounter].score++;
                     }
+                    game.leaderboard[temporalCounter].time += result.time;
                 }
                 temporalCounter++;
             });
@@ -296,37 +304,41 @@ io.on('connection', async (sock) => {
     console.log('Someone is connected!');
     sock.on('disconnect', () => {
         console.log("Someone disconnected!");
+        let aEliminar = [];
         clearTimeout(questionCounter);
-        try{
             for (var client in clients){
                 if (clients[client].connection == sock){
                     let clientIdSearched = clients[client].id;
-                    for (var game in games){
-                        for (let i=0; i < games[game].clients.length; i++){
-                            if(games[game].leaderboard[i].clientId === clientIdSearched){
-                                games[game].leaderboard.splice(i, 1);
-                            }
-                            if(games[game].clients[i].clientId === clientIdSearched){
-                                games[game].clients.splice(i, 1);
-                                if(!games[game].started){
-                                    const payLoad = {
-                                        "method" : "join",
-                                        "game" : games[game]
-                                    }
-                                    games[game].clients.forEach(client => {
-                                        clients[client.clientId].connection.emit('message', JSON.stringify(payLoad));
-                                    });
-                                } else {
-                                    if (!(Array.isArray(games[game].clients) && games[game].clients.length)){
-                                        games[game].started = false;
-                                    }
+                    delete clients[client];
+                    aEliminar.push(clientIdSearched);
+                }
+            }
+            console.log('Clients to delete:', aEliminar);
+            for (var clientIdSearched in aEliminar){
+                for (var game in games){
+                    for (let i=0; i < games[game].clients.length - 1; i++){
+                        if(games[game].leaderboard[i].clientId === clientIdSearched){
+                            games[game].leaderboard.splice(i, 1);
+                            aEliminar.push()
+                        }
+                        if(games[game].clients[i].clientId === clientIdSearched){
+                            games[game].clients.splice(i, 1);
+                            if(!games[game].started){
+                                const payLoad = {
+                                    "method" : "join",
+                                    "game" : games[game]
+                                }
+                                games[game].clients.forEach(client => {
+                                    clients[client.clientId].connection.emit('message', JSON.stringify(payLoad));
+                                });
+                            } else {
+                                if (!(Array.isArray(games[game].clients) && games[game].clients.length)){
+                                    games[game].started = false;
                                 }
                             }
                         }
                     }
-                    delete clients[client];
                 }
             }
-        } catch {}
     });
 });
