@@ -16,6 +16,8 @@ function Game(){
     const [properties, setProperties] = useState({actualQuestion: game.questions[questionCounter], questionCounter: questionCounter, timePerQuestion: game.timePerQuestion});
     const [temporalLeaderboardProperties, setTemporalLeaderboardProperties] = useState({showTemporalLeaderboard: false, leaderboard: {}});
     const [winnerProperties, setWinnerProperties] = useState({showWinners: false, leaderboard: {}});
+    const [audio, setAudio] = useState(new Audio('http://localhost:3000/resources/mision-imposible-guitarra.mp3'));
+    let toggleAudio = true;
 
     //FUNCTIONS
     const curtainDown = async () => {
@@ -70,8 +72,10 @@ function Game(){
         setTemporalLeaderboardProperties({showTemporalLeaderboard: true, leaderboard: temporalLeaderboard});
     }
 
-    //Messages
-    useEffect(() => {
+    function unnecessaryFunction(){
+        audio.loop = "loop";
+        audio.play();
+        console.log('Yap!');
         socket.on('message', async message => {
             const response = JSON.parse(message);
             if(response.method === 'submitAnswer'){
@@ -110,10 +114,28 @@ function Game(){
                 context.leaderboard = response.leaderboard
                 setTimeout(showTemporalLeaderboard, 3000, response.leaderboard);
             }
+
+            if(response.method === "stopAudio"){
+                toggleAudio = !toggleAudio;
+                if (toggleAudio){
+                    console.log('Ahora soy tru!');
+                    audio.volume = 1;
+                } else {
+                    console.log('Falso como false');
+                    audio.volume = 0;
+                }
+                console.log('ATENDIDO DESDE EL GAME.JSX');
+            }
         });
+    }
+
+    //Messages
+    useEffect(() => {
+        unnecessaryFunction();
     }, []);
 
     if(winnerProperties.showWinners){
+        audio.pause();
         return(
             <Winners leaderboard={winnerProperties.leaderboard}/>
         )

@@ -18,6 +18,7 @@ function Question(props){
     let formSubmitted = 0;
     let seconds = 0;
     const [audio, setAudio] = useState(new Audio('http://localhost:3000/resources/tic-tac-clock-sound-fx.mp3'));
+    let toggleAudio = true;
 
     //Functions
     const curtainUp = async () => {
@@ -53,6 +54,21 @@ function Question(props){
 
     //Messages
     useEffect(() => {
+        socket.on('message', message => {
+            const response = JSON.parse(message)
+            if(response.method === "stopAudio"){
+                console.log('REACIBIDO DESDE EL QUESTIONS');
+                toggleAudio = !toggleAudio;
+                if (toggleAudio){
+                    console.log('Ahora soy tru!');
+                    audio.volume = 1;
+                } else {
+                    console.log('Falso como false');
+                    audio.volume = 0;
+                }
+            }
+        });
+
         options = document.getElementsByClassName('option');
         for (var i = 0; i < options.length; i++){
             element = options.item(i);

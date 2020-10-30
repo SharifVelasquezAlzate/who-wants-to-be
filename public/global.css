@@ -33,4 +33,24 @@ button:hover {
 button.turn:hover {
   background-color: #eaeaea;
 }
-  
+
+#buttonStopAudio{
+  width: 24px;
+  height: 24px;
+  background: url('resources/Images/audio.png') no-repeat center center;
+  background-size: 100% 100%;
+}
+
+#containerButtonStopAudio{
+  border: 2px solid black;
+  border-radius: 10px;
+  float: right;
+  padding: 5px;
+  margin: 10px 10px 0px 0px;
+  position: absolute;
+  left: 96%;
+}
+
+#containerButtonStopAudio:hover{
+  cursor: pointer;
+} 

@@ -1,4 +1,4 @@
-import React, {  useContext, useRef, useEffect, Fragment } from 'react';
+import React, {  useContext, useRef, useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import AppContext from '../AppContext';
 import { paintParticipants } from './join.js';

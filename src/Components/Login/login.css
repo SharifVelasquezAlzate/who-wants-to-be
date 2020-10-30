@@ -1,35 +1,41 @@
 .whatUsernameForm{
-    height: 100%;
-    overflow: hidden;
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  
-  .whatUsernameBox{
-    background: rgba(0, 188, 212, 0.6);
-    padding: 20px;
-    border-radius: 20px;
-    box-shadow: rgba(0, 0, 0, 0.12) 0 30px 10px, rgba(0, 0, 0, 0.12) 0 1px 4px;
-  }
-  
-  .whatUsernameInput{
-    font-size: 18px;
-  }
-  
-  .whatUsernameButton{
-    text-transform: uppercase;
-    font-size: 0.9rem;
-    font-weight: bold;
-    padding: 3px 15px;
-    color: white;
-    line-height: 25px;
-    background-color: #00bcd4;
-    border: none;
-    border-radius: 2px;
-    cursor: pointer;
-    box-shadow: rgba(0, 0, 0, 0.12) 0 1px 6px, rgba(0, 0, 0, 0.12) 0 1px 4px;
-    transition: all 150ms ease-in;
-    outline: none;
-  }
+  height: 100%;
+  overflow: hidden;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.whatUsernameBox{
+  background: white;
+  padding: 20px;
+  border: 15px solid #000FFF;
+  border-radius: 20px;
+  box-shadow: rgba(0, 0, 0, 0.12) 0 30px 10px, rgba(0, 0, 0, 0.12) 0 1px 4px;
+}
+
+.whatUsernameInput{
+  font-size: 18px;
+  border: 3px solid #000FFF;
+}
+
+.whatUsernameButton{
+  text-transform: uppercase;
+  font-size: 0.9rem;
+  font-weight: bold;
+  padding: 3px 15px;
+  color: white;
+  line-height: 25px;
+  background-color: #000FFF;
+  border: none;
+  border-radius: 2px;
+  cursor: pointer;
+  box-shadow: rgba(0, 0, 0, 0.12) 0 1px 6px, rgba(0, 0, 0, 0.12) 0 1px 4px;
+  transition: all 150ms ease-in;
+  outline: none;
+}
+
+.whatUsernameTitle{
+  color: black;
+}

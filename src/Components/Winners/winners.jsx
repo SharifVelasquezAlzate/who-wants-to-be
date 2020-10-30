@@ -1,10 +1,28 @@
-import React, { useRef } from 'react';
-import { useEffect } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import './winners.css';
+import { socket } from '../../socket';
 
 function Winners(props){
     const winnersLeaderboard = useRef(null);
+    const [audio, setAudio] = useState(new Audio('http://localhost:3000/resources/applause-crowd-cheering-sound-effect.mp3'));
+    let toggleAudio = true;
+
     useEffect(() => {
+        socket.on('message', message => {
+            const response = JSON.parse(message)
+            if(response.method === "stopAudio"){
+                console.log('REACIBIDO DESDE EL WINNERS');
+                toggleAudio = !toggleAudio;
+                if (toggleAudio){
+                    console.log('Ahora soy tru!');
+                    audio.volume = 1;
+                } else {
+                    console.log('Falso como false');
+                    audio.volume = 0;
+                }
+            }
+        })
+
         const leaderboard = sortByKey(props.leaderboard, 'score', 'time').reverse();
         //Functions
         function sortByKey(array, key, key2){
@@ -39,6 +57,9 @@ function Winners(props){
             scoreBox.className = 'scoreBox';
             div.appendChild(scoreBox);
         }
+        
+        audio.play();
+
     }, []);
 
     return(

@@ -289,7 +289,7 @@ io.on('connection', async (sock) => {
             sock.emit('message', JSON.stringify(payLoad));
         }
 
-        if(result.method == "showWinners"){
+        if(result.method === "showWinners"){
             const gameId = result.gameId;
             const leaderboard = (games[gameId].leaderboard).sort();
             const payLoad = {
@@ -297,6 +297,14 @@ io.on('connection', async (sock) => {
                 "leaderboard" : leaderboard
             }
             clearTimeout(questionCounter);
+            clients[result.clientId].connection.emit('message', JSON.stringify(payLoad));
+        }
+
+        if(result.method === "stopAudio"){
+            console.log("RESULT:", result);
+            const payLoad = {
+                "method" : "stopAudio"
+            }
             clients[result.clientId].connection.emit('message', JSON.stringify(payLoad));
         }
         }

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import AppContext from './Components/AppContext';
 import Login from './Components/Login/login';
 import Home from './Components/Home/home';
@@ -16,6 +16,7 @@ import {
 function App() {
   const [clientId, setClientId] = useState(null);
   const [gameId, setGameId] = useState(null);
+  let toggleAudio = true;
 
   let variables = {
     clientId: clientId,
@@ -24,11 +25,31 @@ function App() {
     game: null,
     leaderboard: null,
     setClientId,
-    setGameId
+    setGameId                             
+  }
+
+  //Functions
+  function stopAllAudio(){
+    toggleAudio = !toggleAudio;
+    if(toggleAudio){
+      document.getElementById('buttonStopAudio').style.background = `url('resources/Images/audio.png') no-repeat center center`;
+    } else {
+      document.getElementById('buttonStopAudio').style.background = `url('resources/Images/no-audio.png') no-repeat center center`;
+    }
+    const payLoad = {
+      "method" : "stopAudio",
+      "clientId" : variables.clientId
+    }
+    socket.emit('message', JSON.stringify(payLoad));
   }
   
   return (
     <AppContext.Provider value={variables}>
+      <div id="containerButtonStopAudio" onClick={stopAllAudio}>
+        <div id="buttonStopAudio">
+
+        </div>
+      </div>
       <Router>
         <Switch>
           <Route path="/home">
